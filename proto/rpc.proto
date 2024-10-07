@@ -1,0 +1,42 @@
+syntax = "proto3";  
+
+option go_package = "proto/proto";  
+
+service ReplicaServer {
+  rpc Read (ReadRequest) returns (ReadReply) {}
+  rpc Write (WriteRequest) returns (WriteReply) {}
+  rpc Prepare (PrepareRequest) returns (PrepareOKReply) {}
+}
+
+message ReadRequest {
+  int64 requestid = 1;
+  int64 clientid = 2;
+  string websitename = 3;
+}
+
+message ReadReply {
+  string value = 1;
+}
+
+message WriteRequest {
+  int64 requestid = 1;
+  int64 clientid = 2;
+  string websitename = 3;
+  string address = 4;
+}
+
+message WriteReply {
+  bool modified = 1;
+}
+
+message PrepareRequest {
+  int64 logid = 1;
+  int64 requestid = 2;
+  int64 clientid = 3;
+  string websitename = 4;
+  string address = 5;
+}
+
+message PrepareOKReply {
+  bool received = 1;
+}
