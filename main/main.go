@@ -5,6 +5,7 @@ import (
 	replica "Code/replica"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"sync"
 )
@@ -34,9 +35,10 @@ func Initialize(rep *replica.Replica, port int) {
 		rep.IsPrimary = false
 	}
 	rep.ViewChangeInProgress = false
-	rep.State = 0
-	rep.CurLogID = 1;
-	rep.WaitingLogs = make(map[int]*replica.LogEntry)
+	rep.CurLogID = 0;
+	rep.ClientRequestID = make(map[int]int)
+	rep.CommittedNumber = 0
+
 }
 
 func InitializeClient(client * client.Client, id int) {
@@ -46,12 +48,19 @@ func InitializeClient(client * client.Client, id int) {
 }
 
 func main() {
+	logFile, err := os.OpenFile("logs.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("Failed to open log file: %v", err)
+	}
+	defer logFile.Close()
+	log.SetOutput(logFile)
+
 	var replicaSize int
 	var clientSize int
 	var wg sync.WaitGroup
 
 	fmt.Print("Enter the number of Replicas: ")
-	_, err := fmt.Scan(&replicaSize)
+	_, err = fmt.Scan(&replicaSize)
 	if err != nil {
 		log.Fatalf("Error reading input: %v", err)
 	}
@@ -65,6 +74,7 @@ func main() {
 	replicasArray := make([]replica.Replica, replicaSize)
 	clientsArray := make([]client.Client, clientSize)
 
+	
 	for i := 0; i < replicaSize; i++ {
 		Initialize(&replicasArray[i], 5000 + i)
 		wg.Add(1)
@@ -77,5 +87,10 @@ func main() {
 	}
 
 	wg.Wait()
+
+	for i := 0; i < replicaSize; i++ {
+		replicasArray[i].PrintDetails()
+	}
+
 	fmt.Println("Successfull!!")
 }

@@ -1,42 +1,60 @@
 syntax = "proto3";  
 
 option go_package = "proto/proto";  
+import "google/protobuf/empty.proto";
 
 service ReplicaServer {
   rpc Read (ReadRequest) returns (ReadReply) {}
   rpc Write (WriteRequest) returns (WriteReply) {}
   rpc Prepare (PrepareRequest) returns (PrepareOKReply) {}
+  rpc Commit (CommitRequest) returns (google.protobuf.Empty) {}
 }
 
+// Request for reading an entry from the DNS
 message ReadRequest {
-  int64 requestid = 1;
-  int64 clientid = 2;
-  string websitename = 3;
+  int64 requestid = 1; // Request ID at the client
+  int64 clientid = 2; // Client ID of the client
+  string websitename = 3; // Name of the website
 }
 
-message ReadReply {
-  string value = 1;
+// Reply of the Read request
+message ReadReply { 
+  string value = 1; // Address of the website
+  int64 viewnumber = 2; // Current view number
 }
 
+// Request foR writing an entry to the DNS
 message WriteRequest {
-  int64 requestid = 1;
-  int64 clientid = 2;
-  string websitename = 3;
-  string address = 4;
+  int64 requestid = 1; // Request ID at the client
+  int64 clientid = 2; // Client ID of the client
+  string websitename = 3; // Name of the website
+  string address = 4; // Address of the website
 }
 
+// Reply of the Write request
 message WriteReply {
-  bool modified = 1;
+  bool modified = 1; // Boolean to know whether the write has been done or not
+  int64 viewnumber = 2; // Current view number
 }
 
+// Prepare Request
 message PrepareRequest {
-  int64 logid = 1;
-  int64 requestid = 2;
-  int64 clientid = 3;
-  string websitename = 4;
-  string address = 5;
+  int64 logid = 1; // Log ID given at the primary replica
+  int64 requestid = 2; // Request ID from the client
+  int64 clientid = 3; // Client ID of the client
+  int64 viewnumber = 4; // Current view number
+  string websitename = 5; // Name of the website
+  string address = 6; // Address of the website
+  int64 commitnumber = 7; // Commit number: The last log entry upto which needs to be committed
+} 
+
+// PrepareOK Reply from a replica to primary replica
+message PrepareOKReply {
+  bool received = 1; // Sends True
 }
 
-message PrepareOKReply {
-  bool received = 1;
+// Commit Request from primary replica to all other replicas
+message CommitRequest { 
+  int64 viewnumber = 1; // Current view number
+  int64 commitnumber = 2; // Commit number: The last log entry upto which needs to be committed
 }

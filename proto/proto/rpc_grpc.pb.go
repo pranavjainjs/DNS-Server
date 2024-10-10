@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,6 +23,7 @@ const (
 	ReplicaServer_Read_FullMethodName    = "/ReplicaServer/Read"
 	ReplicaServer_Write_FullMethodName   = "/ReplicaServer/Write"
 	ReplicaServer_Prepare_FullMethodName = "/ReplicaServer/Prepare"
+	ReplicaServer_Commit_FullMethodName  = "/ReplicaServer/Commit"
 )
 
 // ReplicaServerClient is the client API for ReplicaServer service.
@@ -31,6 +33,7 @@ type ReplicaServerClient interface {
 	Read(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (*ReadReply, error)
 	Write(ctx context.Context, in *WriteRequest, opts ...grpc.CallOption) (*WriteReply, error)
 	Prepare(ctx context.Context, in *PrepareRequest, opts ...grpc.CallOption) (*PrepareOKReply, error)
+	Commit(ctx context.Context, in *CommitRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type replicaServerClient struct {
@@ -71,6 +74,16 @@ func (c *replicaServerClient) Prepare(ctx context.Context, in *PrepareRequest, o
 	return out, nil
 }
 
+func (c *replicaServerClient) Commit(ctx context.Context, in *CommitRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ReplicaServer_Commit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ReplicaServerServer is the server API for ReplicaServer service.
 // All implementations must embed UnimplementedReplicaServerServer
 // for forward compatibility.
@@ -78,6 +91,7 @@ type ReplicaServerServer interface {
 	Read(context.Context, *ReadRequest) (*ReadReply, error)
 	Write(context.Context, *WriteRequest) (*WriteReply, error)
 	Prepare(context.Context, *PrepareRequest) (*PrepareOKReply, error)
+	Commit(context.Context, *CommitRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedReplicaServerServer()
 }
 
@@ -96,6 +110,9 @@ func (UnimplementedReplicaServerServer) Write(context.Context, *WriteRequest) (*
 }
 func (UnimplementedReplicaServerServer) Prepare(context.Context, *PrepareRequest) (*PrepareOKReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Prepare not implemented")
+}
+func (UnimplementedReplicaServerServer) Commit(context.Context, *CommitRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Commit not implemented")
 }
 func (UnimplementedReplicaServerServer) mustEmbedUnimplementedReplicaServerServer() {}
 func (UnimplementedReplicaServerServer) testEmbeddedByValue()                       {}
@@ -172,6 +189,24 @@ func _ReplicaServer_Prepare_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReplicaServer_Commit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReplicaServerServer).Commit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReplicaServer_Commit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReplicaServerServer).Commit(ctx, req.(*CommitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ReplicaServer_ServiceDesc is the grpc.ServiceDesc for ReplicaServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +225,10 @@ var ReplicaServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Prepare",
 			Handler:    _ReplicaServer_Prepare_Handler,
+		},
+		{
+			MethodName: "Commit",
+			Handler:    _ReplicaServer_Commit_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
