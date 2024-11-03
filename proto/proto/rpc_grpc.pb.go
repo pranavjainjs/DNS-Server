@@ -26,6 +26,7 @@ const (
 	ReplicaServer_Commit_FullMethodName           = "/ReplicaServer/Commit"
 	ReplicaServer_ReceiveHeartBeat_FullMethodName = "/ReplicaServer/ReceiveHeartBeat"
 	ReplicaServer_StartViewChange_FullMethodName  = "/ReplicaServer/StartViewChange"
+	ReplicaServer_DoViewChange_FullMethodName     = "/ReplicaServer/DoViewChange"
 )
 
 // ReplicaServerClient is the client API for ReplicaServer service.
@@ -38,6 +39,7 @@ type ReplicaServerClient interface {
 	Commit(ctx context.Context, in *CommitRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ReceiveHeartBeat(ctx context.Context, in *HeartBeatRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	StartViewChange(ctx context.Context, in *StartViewChangeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DoViewChange(ctx context.Context, in *DoViewChangeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type replicaServerClient struct {
@@ -108,6 +110,16 @@ func (c *replicaServerClient) StartViewChange(ctx context.Context, in *StartView
 	return out, nil
 }
 
+func (c *replicaServerClient) DoViewChange(ctx context.Context, in *DoViewChangeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ReplicaServer_DoViewChange_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ReplicaServerServer is the server API for ReplicaServer service.
 // All implementations must embed UnimplementedReplicaServerServer
 // for forward compatibility.
@@ -118,6 +130,7 @@ type ReplicaServerServer interface {
 	Commit(context.Context, *CommitRequest) (*emptypb.Empty, error)
 	ReceiveHeartBeat(context.Context, *HeartBeatRequest) (*emptypb.Empty, error)
 	StartViewChange(context.Context, *StartViewChangeRequest) (*emptypb.Empty, error)
+	DoViewChange(context.Context, *DoViewChangeRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedReplicaServerServer()
 }
 
@@ -145,6 +158,9 @@ func (UnimplementedReplicaServerServer) ReceiveHeartBeat(context.Context, *Heart
 }
 func (UnimplementedReplicaServerServer) StartViewChange(context.Context, *StartViewChangeRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartViewChange not implemented")
+}
+func (UnimplementedReplicaServerServer) DoViewChange(context.Context, *DoViewChangeRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DoViewChange not implemented")
 }
 func (UnimplementedReplicaServerServer) mustEmbedUnimplementedReplicaServerServer() {}
 func (UnimplementedReplicaServerServer) testEmbeddedByValue()                       {}
@@ -275,6 +291,24 @@ func _ReplicaServer_StartViewChange_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReplicaServer_DoViewChange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DoViewChangeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReplicaServerServer).DoViewChange(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReplicaServer_DoViewChange_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReplicaServerServer).DoViewChange(ctx, req.(*DoViewChangeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ReplicaServer_ServiceDesc is the grpc.ServiceDesc for ReplicaServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -305,6 +339,10 @@ var ReplicaServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartViewChange",
 			Handler:    _ReplicaServer_StartViewChange_Handler,
+		},
+		{
+			MethodName: "DoViewChange",
+			Handler:    _ReplicaServer_DoViewChange_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

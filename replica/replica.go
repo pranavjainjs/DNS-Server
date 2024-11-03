@@ -2,6 +2,7 @@ package replica
 
 import (
 	"context"
+	"math/rand"
 	"fmt"
 	"log"
 	"net"
@@ -20,22 +21,23 @@ import (
 
 // Struct for Replica
 type Replica struct {
-	ID                   int               // ID of the replica
-	Address              string            // Address of the replica
-	DNS                  map[string]string // DNS stored at the replica
-	Log                  []*LogEntry       // Log Entries
-	View                 int               // Current view
-	IsPrimary            bool              // Whether it's primary or not
-	ViewChangeInProgress bool              // Whether the view change is in progress or not
-	CurLogID             int               // Current Log ID: The index at which the new one can be added (initialized with 0)
-	ClientRequestID      map[int]int       // Maintains the recent most request ID of a client
-	CommittedNumber      int               // Committed Number
-	Timeout              int               // Timeout value
-	activityChan         chan struct{}     // Channel to signal activity (heartbeat reception)
-	HeartBeatInterval    time.Duration     // HeartBeatInterval
-	FailureTime          time.Duration     // The server stays up for this much time and then stops/fails
-	ViewChangeCounts     map[int]int       // Map to track counts of requests for each view number
-	PrintedViews         map[int]bool      // Map to track if a view has been printed
+	ID                   int                       // ID of the replica
+	Address              string                    // Address of the replica
+	DNS                  map[string]string         // DNS stored at the replica
+	Log                  []*LogEntry               // Log Entries
+	View                 int                       // Current view
+	IsPrimary            bool                      // Whether it's primary or not
+	ViewChangeInProgress bool                      // Whether the view change is in progress or not
+	CurLogID             int                       // Current Log ID: The index at which the new one can be added (initialized with 0)
+	ClientRequestID      map[int]int               // Maintains the recent most request ID of a client
+	CommittedNumber      int                       // Committed Number
+	Timeout              int                       // Timeout value
+	activityChan         chan struct{}             // Channel to signal activity (heartbeat reception)
+	HeartBeatInterval    time.Duration             // HeartBeatInterval
+	FailureTime          time.Duration             // The server stays up for this much time and then stops/fails
+	ViewChangeCounts     map[int]int               // Map to track counts of requests for each view number
+	PrintedViews         map[int]bool              // Map to track if a view has been printed
+	DoViewChangeCount    []*pb.DoViewChangeRequest // DoViewChange Requests received
 }
 
 type LogEntry struct {
@@ -291,7 +293,7 @@ func (s *server) checkInactivity(wg *sync.WaitGroup) {
 // sendHeartbeats regularly sends heartbeat messages to the non-primary replicas.
 func (s *server) sendHeartbeats(wg *sync.WaitGroup) {
 	defer wg.Done()
-	ticker := time.NewTicker(s.rep.HeartBeatInterval/2)
+	ticker := time.NewTicker(s.rep.HeartBeatInterval / 2)
 
 	for {
 		select {
@@ -337,7 +339,7 @@ func (s *server) sendStartViewChange() {
 					return
 				}
 				defer conn.Close()
-	
+
 				client := pb.NewReplicaServerClient(conn)
 				_, err = client.StartViewChange(context.Background(), &pb.StartViewChangeRequest{Replicaid: int64(s.rep.ID), Viewnumber: int64(s.rep.View)})
 				if err != nil {
@@ -364,69 +366,188 @@ func (s *server) StartViewChange(ctx context.Context, req *pb.StartViewChangeReq
 		s.rep.ViewChangeCounts[view]++
 		// Check if the count has reached the threshold `f`
 		if s.rep.ViewChangeCounts[view] >= s.f {
+			s.rep.ViewChangeInProgress = true
 			// Print message and mark the view as processed
 			log.Printf("Replica %d: Received %d StartViewChange requests for view %d", s.rep.ID, s.f, view)
 			s.rep.PrintedViews[view] = true // Mark this view as processed
+			if s.rep.View != s.rep.ID {
+				log.Printf("Replica %d: Sending DoViewChange to the new primary", s.rep.ID)
+				s.sendDoViewChange()
+			}
 		}
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// Function to convert an array of protobuf LogEntry messages to an array of pointers to custom LogEntry structs
+func convertProtoLogEntries(protoEntries []*pb.LogEntry) []*LogEntry {
+	// Initialize a slice to hold pointers to the converted entries
+	entries := make([]*LogEntry, len(protoEntries))
+	// Iterate over each protobuf LogEntry and convert it
+	for i, protoEntry := range protoEntries {
+		// Create a new LogEntry and take its address
+		entries[i] = &LogEntry{
+			LogID:     int(protoEntry.LogID),
+			RequestID: int(protoEntry.RequestID),
+			ClientID:  int(protoEntry.ClientID),
+			Operation: int(protoEntry.Operation),
+			Key:       protoEntry.Key,
+			Value:     protoEntry.Value,
+			Committed: protoEntry.Committed,
+		}
+	}
+	return entries
+}
+
+// Helper function to convert map[int]int to map[int64]int64
+func convertMapIntToInt64(input map[int]int) map[int64]int64 {
+    result := make(map[int64]int64, len(input))
+    for key, value := range input {
+        result[int64(key)] = int64(value)
+    }
+    return result
+}
+
+// Helper function to convert map[int64]int64 to map[int]int
+func convertMapInt64ToInt(input map[int64]int64) map[int]int {
+    result := make(map[int]int, len(input))
+    for key, value := range input {
+        result[int(key)] = int(value)
+    }
+    return result
+}
+
+func (s*server) sendDoViewChange() {
+	conn, err := grpc.NewClient(fmt.Sprintf("localhost:%d", 5000+s.rep.View), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Printf("Replica %d: Error connecting to Replica %d", s.rep.ID, s.rep.View)
+	}
+	defer conn.Close()
+	
+	var logents []*pb.LogEntry
+	for i := 0; i < len(s.rep.Log); i++ {
+		logent := &pb.LogEntry{
+			LogID: int64(s.rep.Log[i].LogID),
+			RequestID: int64(s.rep.Log[i].RequestID),
+			ClientID: int64(s.rep.Log[i].ClientID),
+			Operation: int64(s.rep.Log[i].Operation),
+			Key: s.rep.Log[i].Key,
+			Value: s.rep.Log[i].Value,
+			Committed: s.rep.Log[i].Committed,
+		}
+		logents = append(logents, logent)
+	}
+
+	client := pb.NewReplicaServerClient(conn)
+	t := time.Duration(rand.Intn(2) + 1)
+	time.Sleep(t*time.Second)
+	log.Printf("Replica %d: Calling DoViewChange now", s.rep.ID)
+	_, err = client.DoViewChange(context.Background(), &pb.DoViewChangeRequest{
+		Replicaid: int64(s.rep.ID),
+		Viewnumber: int64(s.rep.View),
+		Prevviewnumber: int64(s.rep.View-1),
+		Opnumber: int64(s.rep.CurLogID),
+		Commitnumber: int64(s.rep.CommittedNumber),
+		Items: logents,
+		Clientrequestid: convertMapIntToInt64(s.rep.ClientRequestID),
+	})
+	if err != nil {
+		log.Printf("Replica %d: Failed to send DoViewChange to Replica %d for view %d", s.rep.ID, s.rep.View, s.rep.View)
+	}
+}
+
+func (s *server) DoViewChange(ctx context.Context, req *pb.DoViewChangeRequest) (*emptypb.Empty, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	log.Printf("Replica %d: Received view change request from %d with Viewnumber: %d", s.rep.ID, req.Replicaid, req.Viewnumber)
+	if s.rep.ID == int(req.Viewnumber) {
+		log.Printf("Replica %d: Processing view change request from %d with Viewnumber: %d", s.rep.ID, req.Replicaid, req.Viewnumber)
+		s.rep.DoViewChangeCount = append(s.rep.DoViewChangeCount, req)
+		if len(s.rep.DoViewChangeCount) >= s.f {
+			s.rep.View = int(s.rep.DoViewChangeCount[0].Viewnumber)
+			selected := &pb.DoViewChangeRequest{Prevviewnumber: -1}
+			for i := 0; i < len(s.rep.DoViewChangeCount); i++ {
+				if s.rep.DoViewChangeCount[i].Prevviewnumber > selected.Prevviewnumber {
+					selected = s.rep.DoViewChangeCount[i]
+				} else if s.rep.DoViewChangeCount[i].Prevviewnumber == selected.Prevviewnumber {
+					if s.rep.DoViewChangeCount[i].Opnumber > selected.Opnumber {
+						selected = s.rep.DoViewChangeCount[i]
+					}
+				}
+			}
+			if !s.rep.IsPrimary {
+				s.rep.CurLogID = int(selected.Opnumber)
+				s.rep.CommittedNumber = int(selected.Commitnumber)
+				s.rep.Log = convertProtoLogEntries(selected.Items)
+				s.rep.ViewChangeInProgress = false
+				s.rep.IsPrimary = true
+				s.rep.ClientRequestID = convertMapInt64ToInt(selected.Clientrequestid)
+				log.Printf("Replica %d: Have become the primary now because of the request from %d", s.rep.ID, req.Replicaid)
+			} else {
+				log.Printf("Replica %d: Have already become the primary, so won't be accepting the request from %d", s.rep.ID, req.Replicaid)
+			}
+		}
+	} else {
+		log.Printf("Replica %d: Have already become the primary, so won't be accepting the request from %d", s.rep.ID, req.Replicaid)
 	}
 	return &emptypb.Empty{}, nil
 }
 
 // Run method for Replica
 func (rep *Replica) Run(wg *sync.WaitGroup, port int, replicaSize int) {
-    defer wg.Done()
-
-    // Listener setup
-    lis, err := net.Listen("tcp", ":"+strconv.Itoa(port))
-    if err != nil {
-        log.Fatalf("failed to listen: %v", err)
-    }
-    rep.activityChan = make(chan struct{}, 1)
-
-    // Set a timeout for 40 seconds
-	timeout := 40*time.Second
-	if rep.IsPrimary {
-		timeout = 10*time.Second
+	defer wg.Done()
+	rand.Seed(time.Now().UnixNano())
+	// Listener setup
+	lis, err := net.Listen("tcp", ":"+strconv.Itoa(port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
 	}
-    ctx, cancel := context.WithTimeout(context.Background(), timeout)
-    defer cancel()
+	rep.activityChan = make(chan struct{}, 1)
 
-    // gRPC server initialization
-    s := &server{
-        rep:         rep,
-        replicaSize: replicaSize,
-        f:           replicaSize/2 + 1,
-        ctx:         ctx,
-    }
+	// Set a timeout for 40 seconds
+	timeout := 40 * time.Second
+	if rep.IsPrimary {
+		timeout = 10 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
 
-    grpcServer := grpc.NewServer()
-    pb.RegisterReplicaServerServer(grpcServer, s)
+	// gRPC server initialization
+	s := &server{
+		rep:         rep,
+		replicaSize: replicaSize,
+		f:           replicaSize/2 + 1,
+		ctx:         ctx,
+	}
 
-    var serverWG sync.WaitGroup
+	grpcServer := grpc.NewServer()
+	pb.RegisterReplicaServerServer(grpcServer, s)
 
-    // Start heartbeat and inactivity monitoring goroutines if primary
-    if rep.IsPrimary {
-        serverWG.Add(1)
-        go s.sendHeartbeats(&serverWG)
-    }
+	var serverWG sync.WaitGroup
 
-    serverWG.Add(1)
-    go s.checkInactivity(&serverWG)
+	// Start heartbeat and inactivity monitoring goroutines if primary
+	if rep.IsPrimary {
+		serverWG.Add(1)
+		go s.sendHeartbeats(&serverWG)
+	}
 
-    // Start the gRPC server in a goroutine
-    go func() {
-        log.Printf("gRPC server listening on port: %d", port)
-        if err := grpcServer.Serve(lis); err != nil {
-            log.Fatalf("failed to serve: %v", err)
-        }
-    }()
+	serverWG.Add(1)
+	go s.checkInactivity(&serverWG)
 
-    // Wait for timeout or external stop signal
-    <-ctx.Done()
+	// Start the gRPC server in a goroutine
+	go func() {
+		log.Printf("gRPC server listening on port: %d", port)
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
 
-    // Gracefully stop the gRPC server and wait for goroutines to finish
-    grpcServer.GracefulStop()
-    log.Printf("gRPC server on port %d stopped gracefully", port)
-    serverWG.Wait()
-    log.Println("All background processes completed. Server fully shut down.")
+	// Wait for timeout or external stop signal
+	<-ctx.Done()
+
+	// Gracefully stop the gRPC server and wait for goroutines to finish
+	grpcServer.GracefulStop()
+	log.Printf("gRPC server on port %d stopped gracefully", port)
+	serverWG.Wait()
+	log.Println("All background processes completed. Server fully shut down.")
 }
