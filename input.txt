@@ -1,7 +1,13 @@
 10
-2
 1
+10
 0 Google NA
-2
-0 YouTube NA
-1 Baidu 127.8.8.8
+1 YouTube 128.8.8.8
+1 Baidu 128.8.8.8
+1 X 128.8.8.8
+1 Google 128.8.8.8
+1 Facebook 128.8.8.8
+1 Wikipedia 128.8.8.8
+1 TikTok 128.8.8.8
+1 Amazon 128.8.8.8
+1 Yahoo 128.8.8.8

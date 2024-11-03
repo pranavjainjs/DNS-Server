@@ -31,9 +31,11 @@ type Replica struct {
 	ClientRequestID      map[int]int       // Maintains the recent most request ID of a client
 	CommittedNumber      int               // Committed Number
 	Timeout              int               // Timeout value
-	CurrentPrimary       int               // ID of the current primary replica
 	activityChan         chan struct{}     // Channel to signal activity (heartbeat reception)
 	HeartBeatInterval    time.Duration     // HeartBeatInterval
+	FailureTime          time.Duration     // The server stays up for this much time and then stops/fails
+	ViewChangeCounts     map[int]int       // Map to track counts of requests for each view number
+	PrintedViews         map[int]bool      // Map to track if a view has been printed
 }
 
 type LogEntry struct {
@@ -50,9 +52,10 @@ type LogEntry struct {
 type server struct {
 	pb.UnimplementedReplicaServerServer
 	rep         *Replica
-	replicaSize int        // Number of replicas in the system
-	f           int        // Failure threshold
-	mu          sync.Mutex // Mutex lock
+	replicaSize int             // Number of replicas in the system
+	f           int             // Failure threshold
+	mu          sync.Mutex      // Mutex lock
+	ctx         context.Context // Context
 }
 
 // Incrementing Log ID
@@ -243,9 +246,9 @@ func (rep *Replica) PrintDetails() {
 func (s *server) ReceiveHeartBeat(ctx context.Context, req *pb.HeartBeatRequest) (*emptypb.Empty, error) {
 	if !s.rep.IsPrimary { // Only process heartbeats if not primary
 		// Check if the heartbeat is from the current primary
-		if int(req.ServerId) == s.rep.CurrentPrimary {
+		if int(req.ServerId) == s.rep.View {
 			// Reset the inactivity timer on receiving a heartbeat from the primary
-			log.Printf("Replica %d: The request's server ID is %d and the current Primary ID is %d", s.rep.ID, req.ServerId, s.rep.CurrentPrimary)
+			log.Printf("Replica %d: The request's server ID is %d and the current Primary ID is %d", s.rep.ID, req.ServerId, s.rep.View)
 			select {
 			case s.rep.activityChan <- struct{}{}:
 				log.Printf("Replica %d: Received a heartbeat from Replica %d which is the primary", s.rep.ID, req.ServerId)
@@ -259,7 +262,8 @@ func (s *server) ReceiveHeartBeat(ctx context.Context, req *pb.HeartBeatRequest)
 }
 
 // checkInactivity monitors the inactivity timer and logs when no heartbeat is received.
-func (s *server) checkInactivity() {
+func (s *server) checkInactivity(wg *sync.WaitGroup) {
+	defer wg.Done()
 	inactivityTimeout := s.rep.HeartBeatInterval // Use HeartBeatInterval as the inactivity timeout
 
 	for {
@@ -267,77 +271,162 @@ func (s *server) checkInactivity() {
 		case <-time.After(inactivityTimeout):
 			// Inactivity timeout reached; check if this is a non-primary replica
 			if !s.rep.IsPrimary {
+				if s.rep.ViewChangeInProgress {
+					continue
+				}
 				log.Printf("Replica %d: No activity detected - no heartbeat received from primary\n", s.rep.ID)
+				s.sendStartViewChange()
 			}
 
 		case <-s.rep.activityChan:
 			// Reset the inactivity timer upon receiving a heartbeat
 			// If a heartbeat is received, we don't need to log inactivity
 			continue
+		case <-s.ctx.Done():
+			return
 		}
 	}
 }
 
 // sendHeartbeats regularly sends heartbeat messages to the non-primary replicas.
-func (s *server) sendHeartbeats() {
+func (s *server) sendHeartbeats(wg *sync.WaitGroup) {
+	defer wg.Done()
+	ticker := time.NewTicker(s.rep.HeartBeatInterval/2)
+
 	for {
-		if s.rep.IsPrimary {
-			for i := 1; i < s.replicaSize; i++ { 
-				if i != s.rep.ID {
-					conn, err := grpc.Dial("localhost:"+strconv.Itoa(5000+i), grpc.WithInsecure())
-					if err != nil {
-						log.Printf("Could not connect to replica %d: %v", i, err)
-						continue
+		select {
+		case <-s.ctx.Done():
+			return
+		case <-ticker.C:
+			if s.rep.IsPrimary {
+				for i := 1; i < s.replicaSize; i++ {
+					if i != s.rep.ID {
+						conn, err := grpc.Dial("localhost:"+strconv.Itoa(5000+i), grpc.WithInsecure())
+						if err != nil {
+							log.Printf("Could not connect to replica %d: %v", i, err)
+							continue
+						}
+						client := pb.NewReplicaServerClient(conn)
+						_, err = client.ReceiveHeartBeat(context.Background(), &pb.HeartBeatRequest{ServerId: int64(s.rep.ID)})
+						if err != nil {
+							log.Printf("Error sending heartbeat to replica %d: %v", i, err)
+						} else {
+							log.Printf("Replica %d: Sent heartbeat to replica %d", s.rep.ID, i)
+						}
+						conn.Close()
 					}
-					client := pb.NewReplicaServerClient(conn)
-					_, err = client.ReceiveHeartBeat(context.Background(), &pb.HeartBeatRequest{ServerId: int64(s.rep.ID)})
-					if err != nil {
-						log.Printf("Error sending heartbeat to replica %d: %v", i, err)
-					} else {
-						log.Printf("Replica %d: Sent heartbeat to replica %d", s.rep.ID, i)
-					}
-					conn.Close()
 				}
 			}
 		}
-		time.Sleep(s.rep.HeartBeatInterval/2) // Sleep for the heartbeat interval
+		// time.Sleep(s.rep.HeartBeatInterval / 2) // Sleep for the heartbeat interval
 	}
 }
 
-func (rep *Replica) Run(wg *sync.WaitGroup, port int, replicaSize int) {
-	defer wg.Done()
-
-	lis, err := net.Listen("tcp", ":"+strconv.Itoa(port))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	rep.activityChan = make(chan struct{}, 1)
-
-	// Initialize gRPC server 
-	s := &server{rep: rep, replicaSize: replicaSize, f: replicaSize/2 + 1}
-	grpcServer := grpc.NewServer()
-	pb.RegisterReplicaServerServer(grpcServer, s)
-
-	if rep.IsPrimary {
-		go s.sendHeartbeats()
-	}
-
-	go s.checkInactivity()
-
-	timeout := 40 * time.Second
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	// Start gRPC server
-	go func() {
-		log.Printf("gRPC server listening on port: %d", port)
-		if err := grpcServer.Serve(lis); err != nil {
-			log.Fatalf("failed to serve: %v", err)
+func (s *server) sendStartViewChange() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.rep.ViewChangeInProgress = true
+	s.rep.View++
+	for i := 0; i < s.replicaSize; i++ {
+		if i != s.rep.View-1 {
+			go func(replicaID int) {
+				// Connect to the replica
+				conn, err := grpc.NewClient(fmt.Sprintf("localhost:%d", 5000+replicaID), grpc.WithTransportCredentials(insecure.NewCredentials()))
+				if err != nil {
+					log.Printf("Replica %d: Error connecting to Replica %d", s.rep.ID, replicaID)
+					return
+				}
+				defer conn.Close()
+	
+				client := pb.NewReplicaServerClient(conn)
+				_, err = client.StartViewChange(context.Background(), &pb.StartViewChangeRequest{Replicaid: int64(s.rep.ID), Viewnumber: int64(s.rep.View)})
+				if err != nil {
+					log.Printf("Replica %d: Failed to send Prepare to Replica %d", s.rep.ID, replicaID)
+				}
+			}(i)
 		}
-	}()
+	}
+}
 
-	<-ctx.Done()
-	grpcServer.GracefulStop()
-	log.Printf("gRPC server listening on port: %d stopped gracefully", port)
+// StartViewChange handles incoming StartViewChange requests and counts requests per view number
+func (s *server) StartViewChange(ctx context.Context, req *pb.StartViewChangeRequest) (*emptypb.Empty, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	view := int(req.Viewnumber)
+	if view >= s.rep.View {
+		s.rep.View = view
+		// If this view has already been printed, ignore further requests for it
+		if s.rep.PrintedViews[view] {
+			return &emptypb.Empty{}, nil
+		}
+		// Increment the count for this view number
+		s.rep.ViewChangeCounts[view]++
+		// Check if the count has reached the threshold `f`
+		if s.rep.ViewChangeCounts[view] >= s.f {
+			// Print message and mark the view as processed
+			log.Printf("Replica %d: Received %d StartViewChange requests for view %d", s.rep.ID, s.f, view)
+			s.rep.PrintedViews[view] = true // Mark this view as processed
+		}
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// Run method for Replica
+func (rep *Replica) Run(wg *sync.WaitGroup, port int, replicaSize int) {
+    defer wg.Done()
+
+    // Listener setup
+    lis, err := net.Listen("tcp", ":"+strconv.Itoa(port))
+    if err != nil {
+        log.Fatalf("failed to listen: %v", err)
+    }
+    rep.activityChan = make(chan struct{}, 1)
+
+    // Set a timeout for 40 seconds
+	timeout := 40*time.Second
+	if rep.IsPrimary {
+		timeout = 10*time.Second
+	}
+    ctx, cancel := context.WithTimeout(context.Background(), timeout)
+    defer cancel()
+
+    // gRPC server initialization
+    s := &server{
+        rep:         rep,
+        replicaSize: replicaSize,
+        f:           replicaSize/2 + 1,
+        ctx:         ctx,
+    }
+
+    grpcServer := grpc.NewServer()
+    pb.RegisterReplicaServerServer(grpcServer, s)
+
+    var serverWG sync.WaitGroup
+
+    // Start heartbeat and inactivity monitoring goroutines if primary
+    if rep.IsPrimary {
+        serverWG.Add(1)
+        go s.sendHeartbeats(&serverWG)
+    }
+
+    serverWG.Add(1)
+    go s.checkInactivity(&serverWG)
+
+    // Start the gRPC server in a goroutine
+    go func() {
+        log.Printf("gRPC server listening on port: %d", port)
+        if err := grpcServer.Serve(lis); err != nil {
+            log.Fatalf("failed to serve: %v", err)
+        }
+    }()
+
+    // Wait for timeout or external stop signal
+    <-ctx.Done()
+
+    // Gracefully stop the gRPC server and wait for goroutines to finish
+    grpcServer.GracefulStop()
+    log.Printf("gRPC server on port %d stopped gracefully", port)
+    serverWG.Wait()
+    log.Println("All background processes completed. Server fully shut down.")
 }

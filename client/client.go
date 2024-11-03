@@ -54,14 +54,20 @@ func (client *Client) Run() {
 			log.Printf("Client %d: Sent request, RequestID: %d, asking to read the IP address of %s\n", client.ID, client.RequestID, client.Requests[i].Key)
 			r, err := c.Read(ctx, &pb.ReadRequest{Requestid: int64(client.RequestID), Clientid: int64(client.ID), Websitename: client.Requests[i].Key})
 			if err != nil {
-				log.Fatalf("could not greet: %v", err)
+				log.Printf("Client %d: could not greet: %v", client.ID, err)
+				// time.Sleep(5*time.Second)
+				// client.View++;/
+				break
 			}
 			log.Printf("Client %d: Received Reply: %s\n", client.ID, r.GetValue())
 		} else {
 			log.Printf("Client %d: Sent request, RequestID: %d, asking to modify the IP address of %s to %s\n", client.ID, client.RequestID, client.Requests[i].Key, client.Requests[i].Value)
 			r, err := c.Write(ctx, &pb.WriteRequest{Requestid: int64(client.RequestID), Clientid: int64(client.ID), Websitename: client.Requests[i].Key, Address: client.Requests[i].Value})
 			if err != nil {
-				log.Fatalf("could not greet: %v", err)
+				log.Printf("Client %d: could not greet: %v", client.ID, err)
+				// time.Sleep(5*time.Second)
+				// client.View++;
+				break
 			}
 			log.Printf("Client %d: Received Reply: %v\n", client.ID, r.GetModified())
 		}

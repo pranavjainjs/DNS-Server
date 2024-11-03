@@ -40,7 +40,8 @@ func Initialize(rep *replica.Replica, port int) {
 	rep.CommittedNumber = 0
 	rep.Timeout = 5
 	rep.HeartBeatInterval = 10*time.Second
-	rep.CurrentPrimary = 0
+	rep.ViewChangeCounts = make(map[int]int)
+	rep.PrintedViews = make(map[int]bool)
 }
 
 func InitializeClient(client * client.Client, id int) {
@@ -92,7 +93,6 @@ func main() {
 				log.Fatalf("Error reading input: %v", err)
 			}
 			for j := 0; j < temp; j++ {
-				fmt.Println("Sanjana")
 				var typ int
 				var key string
 				var val string
@@ -101,7 +101,6 @@ func main() {
 				fmt.Scan(&val)
 				req := &client.Request{RequestType: typ, Key: key, Value: val}
 				clientsArray[i].Requests = append(clientsArray[i].Requests, req)
-				fmt.Println("Siri")
 			}
 		}
 		for i := 0; i < replicaSize; i++ {

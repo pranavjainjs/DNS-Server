@@ -9,6 +9,7 @@ service ReplicaServer {
   rpc Prepare (PrepareRequest) returns (PrepareOKReply) {}
   rpc Commit (CommitRequest) returns (google.protobuf.Empty) {}
   rpc ReceiveHeartBeat (HeartBeatRequest) returns (google.protobuf.Empty) {}
+  rpc StartViewChange (StartViewChangeRequest) returns (google.protobuf.Empty) {}
 }
 
 // Request for reading an entry from the DNS
@@ -63,4 +64,10 @@ message CommitRequest {
 // HeartBeat that contains the ID of the replica that is sending i.e the primary replica
 message HeartBeatRequest {
   int64 server_id = 1; // Server id of the primary which sends the heartbeat to all the other replicas.
+}
+
+// StartViewChange Request sends its ID along with the new view number
+message StartViewChangeRequest {
+  int64 replicaid = 1;
+  int64 viewnumber = 2;
 }
