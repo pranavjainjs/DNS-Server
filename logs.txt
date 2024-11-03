@@ -1,134 +1,289 @@
-2024/10/10 18:02:06 gRPC server listening on port: 5001
-2024/10/10 18:02:06 gRPC server listening on port: 5006
-2024/10/10 18:02:06 gRPC server listening on port: 5002
-2024/10/10 18:02:06 gRPC server listening on port: 5004
-2024/10/10 18:02:06 gRPC server listening on port: 5003
-2024/10/10 18:02:06 gRPC server listening on port: 5000
-2024/10/10 18:02:06 gRPC server listening on port: 5005
-2024/10/10 18:02:06 gRPC server listening on port: 5009
-2024/10/10 18:02:06 gRPC server listening on port: 5007
-2024/10/10 18:02:06 gRPC server listening on port: 5008
-2024/10/10 18:02:08 Client 2: Sent request, RequestID: 1, asking to read the IP address of YouTube
-2024/10/10 18:02:08 Client 0: Sent request, RequestID: 1, asking to read the IP address of YouTube
-2024/10/10 18:02:08 Client 1: Sent request, RequestID: 1, asking to read the IP address of Google
-2024/10/10 18:02:08 Replica 0: Received Read Request from Client: 2, with request ID: 1 and Website Name: YouTube
-2024/10/10 18:02:08 Replica 0: Received Read Request from Client: 1, with request ID: 1 and Website Name: Google
-2024/10/10 18:02:08 Replica 0: Received Read Request from Client: 0, with request ID: 1 and Website Name: YouTube
-2024/10/10 18:02:08 Client 1: Received Reply: 127.0.0.0
-2024/10/10 18:02:08 Client 2: Received Reply: 127.0.0.1
-2024/10/10 18:02:08 Client 0: Received Reply: 127.0.0.1
-2024/10/10 18:02:09 Client 2: Sent request, RequestID: 2, asking to modify the IP address of Google to 127.0.0.Google
-2024/10/10 18:02:09 Replica 0: Received Write Request from Client: 2, with request: 2, Website Name: Google and New Address: 127.0.0.Google
-2024/10/10 18:02:09 Replica 0: Sending Prepare for Client 2's request with Request ID: 2 to Replica 9 with LogID: 1
-2024/10/10 18:02:09 Replica 0: Sending Prepare for Client 2's request with Request ID: 2 to Replica 6 with LogID: 1
-2024/10/10 18:02:09 Replica 0: Sending Prepare for Client 2's request with Request ID: 2 to Replica 4 with LogID: 1
-2024/10/10 18:02:09 Replica 0: Sending Prepare for Client 2's request with Request ID: 2 to Replica 2 with LogID: 1
-2024/10/10 18:02:09 Replica 0: Sending Prepare for Client 2's request with Request ID: 2 to Replica 8 with LogID: 1
-2024/10/10 18:02:09 Replica 0: Sending Prepare for Client 2's request with Request ID: 2 to Replica 5 with LogID: 1
-2024/10/10 18:02:09 Replica 0: Sending Prepare for Client 2's request with Request ID: 2 to Replica 7 with LogID: 1
-2024/10/10 18:02:09 Replica 0: Sending Prepare for Client 2's request with Request ID: 2 to Replica 3 with LogID: 1
-2024/10/10 18:02:09 Replica 0: Sending Prepare for Client 2's request with Request ID: 2 to Replica 1 with LogID: 1
-2024/10/10 18:02:09 Replica 2: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 2: 0 is the logsize and received a request with logID: 1
-2024/10/10 18:02:09 Replica 2: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 5: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 5: 0 is the logsize and received a request with logID: 1
-2024/10/10 18:02:09 Replica 5: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 7: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 7: 0 is the logsize and received a request with logID: 1
-2024/10/10 18:02:09 Replica 7: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 6: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 6: 0 is the logsize and received a request with logID: 1
-2024/10/10 18:02:09 Replica 6: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 0: Received one OK for Client 2's Prepare request for request ID 2!
-2024/10/10 18:02:09 Replica 8: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 8: 0 is the logsize and received a request with logID: 1
-2024/10/10 18:02:09 Replica 8: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 3: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 4: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 3: 0 is the logsize and received a request with logID: 1
-2024/10/10 18:02:09 Replica 3: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 0: Received one OK for Client 2's Prepare request for request ID 2!
-2024/10/10 18:02:09 Replica 0: Received one OK for Client 2's Prepare request for request ID 2!
-2024/10/10 18:02:09 Replica 4: 0 is the logsize and received a request with logID: 1
-2024/10/10 18:02:09 Replica 1: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 1: 0 is the logsize and received a request with logID: 1
-2024/10/10 18:02:09 Replica 1: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 0: Received one OK for Client 2's Prepare request for request ID 2!
-2024/10/10 18:02:09 Replica 4: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 0: Received one OK for Client 2's Prepare request for request ID 2!
-2024/10/10 18:02:09 Replica 9: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 9: 0 is the logsize and received a request with logID: 1
-2024/10/10 18:02:09 Replica 9: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 2
-2024/10/10 18:02:09 Replica 0: Received 6 number of OKs from the replicas for Client 2's request with Request ID: 0!
-2024/10/10 18:02:09 Client 2: Received Reply: true
-2024/10/10 18:02:10 Client 0: Sent request, RequestID: 2, asking to modify the IP address of Google to 127.0.0.Google
-2024/10/10 18:02:10 Client 1: Sent request, RequestID: 2, asking to modify the IP address of Google to 127.0.0.Google
-2024/10/10 18:02:10 Replica 0: Received Write Request from Client: 0, with request: 2, Website Name: Google and New Address: 127.0.0.Google
-2024/10/10 18:02:10 Replica 0: Received Write Request from Client: 1, with request: 2, Website Name: Google and New Address: 127.0.0.Google
-2024/10/10 18:02:10 Client 0: Received Reply: false
-2024/10/10 18:02:10 Client 1: Received Reply: false
-2024/10/10 18:02:11 Client 1: Sent request, RequestID: 3, asking to modify the IP address of Google to 127.0.0.Google
-2024/10/10 18:02:11 Replica 0: Received Write Request from Client: 1, with request: 3, Website Name: Google and New Address: 127.0.0.Google
-2024/10/10 18:02:11 Client 1: Received Reply: false
-2024/10/10 18:02:11 Client 1 completed
-2024/10/10 18:02:11 Client 2: Sent request, RequestID: 3, asking to modify the IP address of YouTube to 127.0.0.YouTube
-2024/10/10 18:02:11 Replica 0: Received Write Request from Client: 2, with request: 3, Website Name: YouTube and New Address: 127.0.0.YouTube
-2024/10/10 18:02:11 Replica 0: Sending Prepare for Client 2's request with Request ID: 3 to Replica 9 with LogID: 2
-2024/10/10 18:02:11 Replica 0: Sending Prepare for Client 2's request with Request ID: 3 to Replica 4 with LogID: 2
-2024/10/10 18:02:11 Replica 0: Sending Prepare for Client 2's request with Request ID: 3 to Replica 6 with LogID: 2
-2024/10/10 18:02:11 Replica 0: Sending Prepare for Client 2's request with Request ID: 3 to Replica 8 with LogID: 2
-2024/10/10 18:02:11 Replica 0: Sending Prepare for Client 2's request with Request ID: 3 to Replica 2 with LogID: 2
-2024/10/10 18:02:11 Replica 0: Sending Prepare for Client 2's request with Request ID: 3 to Replica 5 with LogID: 2
-2024/10/10 18:02:11 Replica 0: Sending Prepare for Client 2's request with Request ID: 3 to Replica 1 with LogID: 2
-2024/10/10 18:02:11 Replica 0: Sending Prepare for Client 2's request with Request ID: 3 to Replica 7 with LogID: 2
-2024/10/10 18:02:11 Replica 0: Sending Prepare for Client 2's request with Request ID: 3 to Replica 3 with LogID: 2
-2024/10/10 18:02:11 Replica 9: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 9: 1 is the logsize and received a request with logID: 2
-2024/10/10 18:02:11 Replica 9: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 6: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 6: 1 is the logsize and received a request with logID: 2
-2024/10/10 18:02:11 Replica 6: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 0: Received one OK for Client 2's Prepare request for request ID 3!
-2024/10/10 18:02:11 Replica 5: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 5: 1 is the logsize and received a request with logID: 2
-2024/10/10 18:02:11 Replica 5: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 0: Received one OK for Client 2's Prepare request for request ID 3!
-2024/10/10 18:02:11 Replica 0: Received one OK for Client 2's Prepare request for request ID 3!
-2024/10/10 18:02:11 Replica 1: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 1: 1 is the logsize and received a request with logID: 2
-2024/10/10 18:02:11 Replica 1: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 0: Received one OK for Client 2's Prepare request for request ID 3!
-2024/10/10 18:02:11 Replica 3: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 3: 1 is the logsize and received a request with logID: 2
-2024/10/10 18:02:11 Replica 3: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 4: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 4: 1 is the logsize and received a request with logID: 2
-2024/10/10 18:02:11 Replica 4: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 0: Received one OK for Client 2's Prepare request for request ID 3!
-2024/10/10 18:02:11 Replica 8: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 8: 1 is the logsize and received a request with logID: 2
-2024/10/10 18:02:11 Replica 8: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 7: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 7: 1 is the logsize and received a request with logID: 2
-2024/10/10 18:02:11 Replica 7: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 2: Received Prepare Request from Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 2: 1 is the logsize and received a request with logID: 2
-2024/10/10 18:02:11 Replica 2: Sent PrepareOK Reply to Replica 0 for Client 2's request with Request ID: 3
-2024/10/10 18:02:11 Replica 0: Received 6 number of OKs from the replicas for Client 2's request with Request ID: 1!
-2024/10/10 18:02:11 Client 2: Received Reply: true
-2024/10/10 18:02:11 Client 2 completed
-2024/10/10 18:02:12 Client 0: Sent request, RequestID: 3, asking to modify the IP address of YouTube to 127.0.0.YouTube
-2024/10/10 18:02:12 Replica 0: Received Write Request from Client: 0, with request: 3, Website Name: YouTube and New Address: 127.0.0.YouTube
-2024/10/10 18:02:12 Client 0: Received Reply: false
-2024/10/10 18:02:12 Client 0 completed
-2024/10/10 18:02:46 gRPC server listening on port: 5000 stopped gracefully
-2024/10/10 18:02:46 gRPC server listening on port: 5004 stopped gracefully
-2024/10/10 18:02:46 gRPC server listening on port: 5006 stopped gracefully
-2024/10/10 18:02:46 gRPC server listening on port: 5001 stopped gracefully
-2024/10/10 18:02:46 gRPC server listening on port: 5002 stopped gracefully
-2024/10/10 18:02:46 gRPC server listening on port: 5003 stopped gracefully
-2024/10/10 18:02:46 gRPC server listening on port: 5009 stopped gracefully
-2024/10/10 18:02:46 gRPC server listening on port: 5005 stopped gracefully
-2024/10/10 18:02:46 gRPC server listening on port: 5007 stopped gracefully
-2024/10/10 18:02:46 gRPC server listening on port: 5008 stopped gracefully
+2024/11/03 11:18:06 gRPC server listening on port: 5004
+2024/11/03 11:18:06 gRPC server listening on port: 5005
+2024/11/03 11:18:06 gRPC server listening on port: 5006
+2024/11/03 11:18:06 gRPC server listening on port: 5007
+2024/11/03 11:18:06 gRPC server listening on port: 5000
+2024/11/03 11:18:06 gRPC server listening on port: 5008
+2024/11/03 11:18:06 gRPC server listening on port: 5001
+2024/11/03 11:18:06 gRPC server listening on port: 5002
+2024/11/03 11:18:06 gRPC server listening on port: 5009
+2024/11/03 11:18:06 gRPC server listening on port: 5003
+2024/11/03 11:18:06 Replica 1: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:06 Replica 1: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:06 Replica 0: Sent heartbeat to replica 1
+2024/11/03 11:18:06 Replica 2: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:06 Replica 2: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:06 Replica 0: Sent heartbeat to replica 2
+2024/11/03 11:18:06 Replica 3: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:06 Replica 3: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:06 Replica 0: Sent heartbeat to replica 3
+2024/11/03 11:18:06 Replica 4: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:06 Replica 4: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:06 Replica 0: Sent heartbeat to replica 4
+2024/11/03 11:18:06 Replica 5: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:06 Replica 5: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:06 Replica 0: Sent heartbeat to replica 5
+2024/11/03 11:18:06 Replica 6: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:06 Replica 6: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:06 Replica 0: Sent heartbeat to replica 6
+2024/11/03 11:18:06 Replica 7: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:06 Replica 7: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:06 Replica 0: Sent heartbeat to replica 7
+2024/11/03 11:18:06 Replica 8: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:06 Replica 8: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:06 Replica 0: Sent heartbeat to replica 8
+2024/11/03 11:18:06 Replica 9: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:06 Replica 9: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:06 Replica 0: Sent heartbeat to replica 9
+2024/11/03 11:18:07 Client 1: Sent request, RequestID: 1, asking to read the IP address of YouTube
+2024/11/03 11:18:07 Replica 0: Received Read Request from Client: 1, with request ID: 1 and Website Name: YouTube
+2024/11/03 11:18:07 Client 1: Received Reply: 127.0.0.1
+2024/11/03 11:18:08 Client 0: Sent request, RequestID: 1, asking to read the IP address of Google
+2024/11/03 11:18:08 Replica 0: Received Read Request from Client: 0, with request ID: 1 and Website Name: Google
+2024/11/03 11:18:08 Client 0: Received Reply: 127.0.0.0
+2024/11/03 11:18:08 Client 0 completed
+2024/11/03 11:18:09 Client 1: Sent request, RequestID: 2, asking to modify the IP address of Baidu to 127.8.8.8
+2024/11/03 11:18:09 Replica 0: Received Write Request from Client: 1, with request: 2, Website Name: Baidu and New Address: 127.8.8.8
+2024/11/03 11:18:09 Replica 0: Sending Prepare for Client 1's request with Request ID: 2 to Replica 9 with LogID: 1
+2024/11/03 11:18:09 Replica 0: Sending Prepare for Client 1's request with Request ID: 2 to Replica 4 with LogID: 1
+2024/11/03 11:18:09 Replica 0: Sending Prepare for Client 1's request with Request ID: 2 to Replica 6 with LogID: 1
+2024/11/03 11:18:09 Replica 0: Sending Prepare for Client 1's request with Request ID: 2 to Replica 1 with LogID: 1
+2024/11/03 11:18:09 Replica 0: Sending Prepare for Client 1's request with Request ID: 2 to Replica 7 with LogID: 1
+2024/11/03 11:18:09 Replica 0: Sending Prepare for Client 1's request with Request ID: 2 to Replica 2 with LogID: 1
+2024/11/03 11:18:09 Replica 0: Sending Prepare for Client 1's request with Request ID: 2 to Replica 8 with LogID: 1
+2024/11/03 11:18:09 Replica 0: Sending Prepare for Client 1's request with Request ID: 2 to Replica 5 with LogID: 1
+2024/11/03 11:18:09 Replica 0: Sending Prepare for Client 1's request with Request ID: 2 to Replica 3 with LogID: 1
+2024/11/03 11:18:09 Replica 4: Received Prepare Request from Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 4: 0 is the logsize and received a request with logID: 1
+2024/11/03 11:18:09 Replica 7: Received Prepare Request from Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 6: Received Prepare Request from Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 5: Received Prepare Request from Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 1: Received Prepare Request from Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 2: Received Prepare Request from Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 3: Received Prepare Request from Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 8: Received Prepare Request from Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 9: Received Prepare Request from Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 4: Sent PrepareOK Reply to Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 8: 0 is the logsize and received a request with logID: 1
+2024/11/03 11:18:09 Replica 8: Sent PrepareOK Reply to Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 9: 0 is the logsize and received a request with logID: 1
+2024/11/03 11:18:09 Replica 7: 0 is the logsize and received a request with logID: 1
+2024/11/03 11:18:09 Replica 9: Sent PrepareOK Reply to Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 7: Sent PrepareOK Reply to Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 6: 0 is the logsize and received a request with logID: 1
+2024/11/03 11:18:09 Replica 6: Sent PrepareOK Reply to Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 1: 0 is the logsize and received a request with logID: 1
+2024/11/03 11:18:09 Replica 1: Sent PrepareOK Reply to Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 2: 0 is the logsize and received a request with logID: 1
+2024/11/03 11:18:09 Replica 2: Sent PrepareOK Reply to Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 5: 0 is the logsize and received a request with logID: 1
+2024/11/03 11:18:09 Replica 5: Sent PrepareOK Reply to Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 3: 0 is the logsize and received a request with logID: 1
+2024/11/03 11:18:09 Replica 3: Sent PrepareOK Reply to Replica 0 for Client 1's request with Request ID: 2
+2024/11/03 11:18:09 Replica 0: Received one OK for Client 1's Prepare request for request ID 2!
+2024/11/03 11:18:09 Replica 0: Received one OK for Client 1's Prepare request for request ID 2!
+2024/11/03 11:18:09 Replica 0: Received one OK for Client 1's Prepare request for request ID 2!
+2024/11/03 11:18:09 Replica 0: Received one OK for Client 1's Prepare request for request ID 2!
+2024/11/03 11:18:09 Replica 0: Received one OK for Client 1's Prepare request for request ID 2!
+2024/11/03 11:18:09 Replica 0: Received 6 number of OKs from the replicas for Client 1's request with Request ID: 0!
+2024/11/03 11:18:09 Client 1: Received Reply: true
+2024/11/03 11:18:09 Client 1 completed
+2024/11/03 11:18:11 Replica 1: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:11 Replica 1: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:11 Replica 0: Sent heartbeat to replica 1
+2024/11/03 11:18:11 Replica 2: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:11 Replica 2: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:11 Replica 0: Sent heartbeat to replica 2
+2024/11/03 11:18:11 Replica 3: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:11 Replica 3: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:11 Replica 0: Sent heartbeat to replica 3
+2024/11/03 11:18:11 Replica 4: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:11 Replica 4: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:11 Replica 0: Sent heartbeat to replica 4
+2024/11/03 11:18:11 Replica 5: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:11 Replica 5: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:11 Replica 0: Sent heartbeat to replica 5
+2024/11/03 11:18:11 Replica 6: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:11 Replica 6: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:11 Replica 0: Sent heartbeat to replica 6
+2024/11/03 11:18:11 Replica 7: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:11 Replica 7: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:11 Replica 0: Sent heartbeat to replica 7
+2024/11/03 11:18:11 Replica 8: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:11 Replica 8: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:11 Replica 0: Sent heartbeat to replica 8
+2024/11/03 11:18:11 Replica 9: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:11 Replica 9: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:11 Replica 0: Sent heartbeat to replica 9
+2024/11/03 11:18:16 Replica 1: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:16 Replica 1: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:16 Replica 0: Sent heartbeat to replica 1
+2024/11/03 11:18:16 Replica 2: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:16 Replica 2: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:16 Replica 0: Sent heartbeat to replica 2
+2024/11/03 11:18:16 Replica 3: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:16 Replica 3: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:16 Replica 0: Sent heartbeat to replica 3
+2024/11/03 11:18:16 Replica 4: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:16 Replica 4: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:16 Replica 0: Sent heartbeat to replica 4
+2024/11/03 11:18:16 Replica 5: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:16 Replica 5: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:16 Replica 0: Sent heartbeat to replica 5
+2024/11/03 11:18:16 Replica 6: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:16 Replica 6: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:16 Replica 0: Sent heartbeat to replica 6
+2024/11/03 11:18:16 Replica 7: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:16 Replica 7: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:16 Replica 0: Sent heartbeat to replica 7
+2024/11/03 11:18:16 Replica 8: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:16 Replica 8: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:16 Replica 0: Sent heartbeat to replica 8
+2024/11/03 11:18:16 Replica 9: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:16 Replica 9: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:16 Replica 0: Sent heartbeat to replica 9
+2024/11/03 11:18:21 Replica 1: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:21 Replica 1: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:21 Replica 0: Sent heartbeat to replica 1
+2024/11/03 11:18:21 Replica 2: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:21 Replica 2: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:21 Replica 0: Sent heartbeat to replica 2
+2024/11/03 11:18:21 Replica 3: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:21 Replica 3: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:21 Replica 0: Sent heartbeat to replica 3
+2024/11/03 11:18:21 Replica 4: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:21 Replica 4: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:21 Replica 0: Sent heartbeat to replica 4
+2024/11/03 11:18:21 Replica 5: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:21 Replica 5: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:21 Replica 0: Sent heartbeat to replica 5
+2024/11/03 11:18:21 Replica 6: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:21 Replica 6: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:21 Replica 0: Sent heartbeat to replica 6
+2024/11/03 11:18:21 Replica 7: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:21 Replica 7: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:21 Replica 0: Sent heartbeat to replica 7
+2024/11/03 11:18:21 Replica 8: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:21 Replica 8: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:21 Replica 0: Sent heartbeat to replica 8
+2024/11/03 11:18:21 Replica 9: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:21 Replica 9: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:21 Replica 0: Sent heartbeat to replica 9
+2024/11/03 11:18:26 Replica 1: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:26 Replica 1: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:26 Replica 0: Sent heartbeat to replica 1
+2024/11/03 11:18:26 Replica 2: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:26 Replica 2: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:26 Replica 0: Sent heartbeat to replica 2
+2024/11/03 11:18:26 Replica 3: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:26 Replica 3: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:26 Replica 0: Sent heartbeat to replica 3
+2024/11/03 11:18:26 Replica 4: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:26 Replica 4: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:26 Replica 0: Sent heartbeat to replica 4
+2024/11/03 11:18:26 Replica 5: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:26 Replica 5: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:26 Replica 0: Sent heartbeat to replica 5
+2024/11/03 11:18:26 Replica 6: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:26 Replica 6: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:26 Replica 0: Sent heartbeat to replica 6
+2024/11/03 11:18:26 Replica 7: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:26 Replica 7: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:26 Replica 0: Sent heartbeat to replica 7
+2024/11/03 11:18:26 Replica 8: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:26 Replica 8: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:26 Replica 0: Sent heartbeat to replica 8
+2024/11/03 11:18:26 Replica 9: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:26 Replica 9: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:26 Replica 0: Sent heartbeat to replica 9
+2024/11/03 11:18:31 Replica 1: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:31 Replica 1: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:31 Replica 0: Sent heartbeat to replica 1
+2024/11/03 11:18:31 Replica 2: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:31 Replica 2: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:31 Replica 0: Sent heartbeat to replica 2
+2024/11/03 11:18:31 Replica 3: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:31 Replica 3: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:31 Replica 0: Sent heartbeat to replica 3
+2024/11/03 11:18:31 Replica 4: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:31 Replica 4: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:31 Replica 0: Sent heartbeat to replica 4
+2024/11/03 11:18:31 Replica 5: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:31 Replica 5: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:31 Replica 0: Sent heartbeat to replica 5
+2024/11/03 11:18:31 Replica 6: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:31 Replica 6: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:31 Replica 0: Sent heartbeat to replica 6
+2024/11/03 11:18:31 Replica 7: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:31 Replica 7: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:31 Replica 0: Sent heartbeat to replica 7
+2024/11/03 11:18:31 Replica 8: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:31 Replica 8: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:31 Replica 0: Sent heartbeat to replica 8
+2024/11/03 11:18:31 Replica 9: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:31 Replica 9: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:31 Replica 0: Sent heartbeat to replica 9
+2024/11/03 11:18:36 Replica 1: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:36 Replica 1: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:36 Replica 0: Sent heartbeat to replica 1
+2024/11/03 11:18:36 Replica 2: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:36 Replica 2: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:36 Replica 0: Sent heartbeat to replica 2
+2024/11/03 11:18:36 Replica 3: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:36 Replica 3: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:36 Replica 0: Sent heartbeat to replica 3
+2024/11/03 11:18:36 Replica 4: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:36 Replica 4: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:36 Replica 0: Sent heartbeat to replica 4
+2024/11/03 11:18:36 Replica 5: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:36 Replica 5: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:36 Replica 0: Sent heartbeat to replica 5
+2024/11/03 11:18:36 Replica 6: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:36 Replica 6: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:36 Replica 0: Sent heartbeat to replica 6
+2024/11/03 11:18:36 Replica 7: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:36 Replica 7: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:36 Replica 0: Sent heartbeat to replica 7
+2024/11/03 11:18:36 Replica 8: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:36 Replica 8: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:36 Replica 0: Sent heartbeat to replica 8
+2024/11/03 11:18:36 Replica 9: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:36 Replica 9: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:36 Replica 0: Sent heartbeat to replica 9
+2024/11/03 11:18:41 Replica 1: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:41 Replica 1: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:41 Replica 0: Sent heartbeat to replica 1
+2024/11/03 11:18:41 Replica 2: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:41 Replica 2: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:41 Replica 0: Sent heartbeat to replica 2
+2024/11/03 11:18:41 Replica 3: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:41 Replica 3: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:41 Replica 0: Sent heartbeat to replica 3
+2024/11/03 11:18:41 Replica 4: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:41 Replica 4: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:41 Replica 0: Sent heartbeat to replica 4
+2024/11/03 11:18:41 Replica 5: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:41 Replica 5: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:41 Replica 0: Sent heartbeat to replica 5
+2024/11/03 11:18:41 Replica 6: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:41 Replica 6: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:41 Replica 0: Sent heartbeat to replica 6
+2024/11/03 11:18:41 Replica 7: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:41 Replica 7: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:41 Replica 0: Sent heartbeat to replica 7
+2024/11/03 11:18:41 Replica 8: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:41 Replica 8: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:41 Replica 0: Sent heartbeat to replica 8
+2024/11/03 11:18:41 Replica 9: The request's server ID is 0 and the current Primary ID is 0
+2024/11/03 11:18:41 Replica 9: Received a heartbeat from Replica 0 which is the primary
+2024/11/03 11:18:41 Replica 0: Sent heartbeat to replica 9
+2024/11/03 11:18:46 gRPC server listening on port: 5005 stopped gracefully
+2024/11/03 11:18:46 gRPC server listening on port: 5006 stopped gracefully
+2024/11/03 11:18:46 gRPC server listening on port: 5008 stopped gracefully
+2024/11/03 11:18:46 gRPC server listening on port: 5004 stopped gracefully
+2024/11/03 11:18:46 gRPC server listening on port: 5003 stopped gracefully
+2024/11/03 11:18:46 gRPC server listening on port: 5002 stopped gracefully
+2024/11/03 11:18:46 gRPC server listening on port: 5000 stopped gracefully
+2024/11/03 11:18:46 gRPC server listening on port: 5007 stopped gracefully
+2024/11/03 11:18:46 gRPC server listening on port: 5001 stopped gracefully
+2024/11/03 11:18:46 gRPC server listening on port: 5009 stopped gracefully

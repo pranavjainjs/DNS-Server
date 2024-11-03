@@ -30,6 +30,10 @@ type Replica struct {
 	CurLogID             int               // Current Log ID: The index at which the new one can be added (initialized with 0)
 	ClientRequestID      map[int]int       // Maintains the recent most request ID of a client
 	CommittedNumber      int               // Committed Number
+	Timeout              int               // Timeout value
+	CurrentPrimary       int               // ID of the current primary replica
+	activityChan         chan struct{}     // Channel to signal activity (heartbeat reception)
+	HeartBeatInterval    time.Duration     // HeartBeatInterval
 }
 
 type LogEntry struct {
@@ -235,6 +239,71 @@ func (rep *Replica) PrintDetails() {
 	}
 }
 
+// Implement the ReceiveHeartBeat function to handle heartbeats
+func (s *server) ReceiveHeartBeat(ctx context.Context, req *pb.HeartBeatRequest) (*emptypb.Empty, error) {
+	if !s.rep.IsPrimary { // Only process heartbeats if not primary
+		// Check if the heartbeat is from the current primary
+		if int(req.ServerId) == s.rep.CurrentPrimary {
+			// Reset the inactivity timer on receiving a heartbeat from the primary
+			log.Printf("Replica %d: The request's server ID is %d and the current Primary ID is %d", s.rep.ID, req.ServerId, s.rep.CurrentPrimary)
+			select {
+			case s.rep.activityChan <- struct{}{}:
+				log.Printf("Replica %d: Received a heartbeat from Replica %d which is the primary", s.rep.ID, req.ServerId)
+				// Successfully reset the timer
+			default:
+				// Channel already has a signal, no need to add another
+			}
+		}
+	}
+	return &emptypb.Empty{}, nil // Return empty response
+}
+
+// checkInactivity monitors the inactivity timer and logs when no heartbeat is received.
+func (s *server) checkInactivity() {
+	inactivityTimeout := s.rep.HeartBeatInterval // Use HeartBeatInterval as the inactivity timeout
+
+	for {
+		select {
+		case <-time.After(inactivityTimeout):
+			// Inactivity timeout reached; check if this is a non-primary replica
+			if !s.rep.IsPrimary {
+				log.Printf("Replica %d: No activity detected - no heartbeat received from primary\n", s.rep.ID)
+			}
+
+		case <-s.rep.activityChan:
+			// Reset the inactivity timer upon receiving a heartbeat
+			// If a heartbeat is received, we don't need to log inactivity
+			continue
+		}
+	}
+}
+
+// sendHeartbeats regularly sends heartbeat messages to the non-primary replicas.
+func (s *server) sendHeartbeats() {
+	for {
+		if s.rep.IsPrimary {
+			for i := 1; i < s.replicaSize; i++ { 
+				if i != s.rep.ID {
+					conn, err := grpc.Dial("localhost:"+strconv.Itoa(5000+i), grpc.WithInsecure())
+					if err != nil {
+						log.Printf("Could not connect to replica %d: %v", i, err)
+						continue
+					}
+					client := pb.NewReplicaServerClient(conn)
+					_, err = client.ReceiveHeartBeat(context.Background(), &pb.HeartBeatRequest{ServerId: int64(s.rep.ID)})
+					if err != nil {
+						log.Printf("Error sending heartbeat to replica %d: %v", i, err)
+					} else {
+						log.Printf("Replica %d: Sent heartbeat to replica %d", s.rep.ID, i)
+					}
+					conn.Close()
+				}
+			}
+		}
+		time.Sleep(s.rep.HeartBeatInterval/2) // Sleep for the heartbeat interval
+	}
+}
+
 func (rep *Replica) Run(wg *sync.WaitGroup, port int, replicaSize int) {
 	defer wg.Done()
 
@@ -243,14 +312,24 @@ func (rep *Replica) Run(wg *sync.WaitGroup, port int, replicaSize int) {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
+	rep.activityChan = make(chan struct{}, 1)
+
+	// Initialize gRPC server 
 	s := &server{rep: rep, replicaSize: replicaSize, f: replicaSize/2 + 1}
 	grpcServer := grpc.NewServer()
 	pb.RegisterReplicaServerServer(grpcServer, s)
+
+	if rep.IsPrimary {
+		go s.sendHeartbeats()
+	}
+
+	go s.checkInactivity()
 
 	timeout := 40 * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
+	// Start gRPC server
 	go func() {
 		log.Printf("gRPC server listening on port: %d", port)
 		if err := grpcServer.Serve(lis); err != nil {
@@ -259,7 +338,6 @@ func (rep *Replica) Run(wg *sync.WaitGroup, port int, replicaSize int) {
 	}()
 
 	<-ctx.Done()
-
 	grpcServer.GracefulStop()
 	log.Printf("gRPC server listening on port: %d stopped gracefully", port)
 }

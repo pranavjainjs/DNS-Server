@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 )
 
 func InitializeDNS (rep *replica.Replica) {
@@ -18,11 +19,10 @@ func InitializeDNS (rep *replica.Replica) {
 	rep.DNS["X"] = "127.0.0.3"
 	rep.DNS["Wikipedia"] = "127.0.0.4"
 	rep.DNS["Baidu"] = "127.0.0.5"
-	rep.DNS["TikTo"] = "127.0.0.6"
+	rep.DNS["TikTok"] = "127.0.0.6"
 	rep.DNS["Amazon"] = "127.0.0.7"
 	rep.DNS["Yahoo"] = "127.0.0.8"
 }
-
 
 func Initialize(rep *replica.Replica, port int) {
     rep.ID = (port) % 5000
@@ -38,7 +38,9 @@ func Initialize(rep *replica.Replica, port int) {
 	rep.CurLogID = 0;
 	rep.ClientRequestID = make(map[int]int)
 	rep.CommittedNumber = 0
-
+	rep.Timeout = 5
+	rep.HeartBeatInterval = 10*time.Second
+	rep.CurrentPrimary = 0
 }
 
 func InitializeClient(client * client.Client, id int) {
@@ -59,38 +61,110 @@ func main() {
 	var clientSize int
 	var wg sync.WaitGroup
 
-	fmt.Print("Enter the number of Replicas: ")
-	_, err = fmt.Scan(&replicaSize)
+	fmt.Print("Do you want to input from the terminal or the input file?\n")
+	fmt.Print("Type 0 for terminal and 1 for input file.\n")
+	var reply int
+	_, err = fmt.Scan(&reply)
 	if err != nil {
 		log.Fatalf("Error reading input: %v", err)
 	}
+	if reply == 0 {
+		fmt.Print("Enter the number of Replicas: ")
+		_, err = fmt.Scan(&replicaSize)
+		if err != nil {
+			log.Fatalf("Error reading input: %v", err)
+		}
 
-	fmt.Print("Enter the number of clients: ")
-	_, err = fmt.Scan(&clientSize)
-	if err != nil {
-		log.Fatalf("Error reading input: %v", err)
+		fmt.Print("Enter the number of clients: ")
+		_, err = fmt.Scan(&clientSize)
+		if err != nil {
+			log.Fatalf("Error reading input: %v", err)
+		}
+
+		replicasArray := make([]replica.Replica, replicaSize)
+		clientsArray := make([]client.Client, clientSize)
+
+		for i := 0; i < clientSize; i++ {
+			fmt.Printf("Enter the number of requests of Client %d: ", i)
+			var temp int
+			_, err = fmt.Scan(&temp)
+			if err != nil {
+				log.Fatalf("Error reading input: %v", err)
+			}
+			for j := 0; j < temp; j++ {
+				fmt.Println("Sanjana")
+				var typ int
+				var key string
+				var val string
+				fmt.Scan(&typ)
+				fmt.Scan(&key)
+				fmt.Scan(&val)
+				req := &client.Request{RequestType: typ, Key: key, Value: val}
+				clientsArray[i].Requests = append(clientsArray[i].Requests, req)
+				fmt.Println("Siri")
+			}
+		}
+		for i := 0; i < replicaSize; i++ {
+			Initialize(&replicasArray[i], 5000 + i)
+			wg.Add(1)
+			go replicasArray[i].Run(&wg, 5000 + i, replicaSize)
+		}
+
+		for i := 0; i < clientSize; i++ {
+			InitializeClient(&clientsArray[i], i)
+			go clientsArray[i].Run()
+		}
+
+		wg.Wait()
+
+		for i := 0; i < replicaSize; i++ {
+			replicasArray[i].PrintDetails()
+		}
+	} else {
+		file, err := os.Open("input.txt")
+		if err != nil {
+			fmt.Println("Error opening file:", err)
+			return
+		}
+		defer file.Close() 
+		
+		fmt.Fscanf(file, "%d\n", &replicaSize)
+		fmt.Fscanf(file, "%d\n", &clientSize)
+		fmt.Printf("%d %d\n", replicaSize, clientSize)
+		replicasArray := make([]replica.Replica, replicaSize)
+		clientsArray := make([]client.Client, clientSize)
+
+		for i := 0; i < clientSize; i++ {
+			var temp int
+			fmt.Fscanf(file, "%d\n", &temp)
+			fmt.Printf("%d\n", temp)
+			for j := 0; j < temp; j++ {
+				var typ int
+				var key string
+				var val string
+				fmt.Fscanf(file, "%d %s %s\n", &typ, &key, &val)
+				fmt.Printf("%d %s %s\n", typ, key, val)
+				req := &client.Request{RequestType: typ, Key: key, Value: val}
+				clientsArray[i].Requests = append(clientsArray[i].Requests, req)
+			}
+		}
+
+		for i := 0; i < replicaSize; i++ {
+			Initialize(&replicasArray[i], 5000 + i)
+			wg.Add(1)
+			go replicasArray[i].Run(&wg, 5000 + i, replicaSize)
+		}
+
+		for i := 0; i < clientSize; i++ {
+			InitializeClient(&clientsArray[i], i)
+			go clientsArray[i].Run()
+		}
+
+		wg.Wait()
+
+		for i := 0; i < replicaSize; i++ {
+			replicasArray[i].PrintDetails()
+		}
 	}
-
-	replicasArray := make([]replica.Replica, replicaSize)
-	clientsArray := make([]client.Client, clientSize)
-
-	
-	for i := 0; i < replicaSize; i++ {
-		Initialize(&replicasArray[i], 5000 + i)
-		wg.Add(1)
-		go replicasArray[i].Run(&wg, 5000 + i, replicaSize)
-	}
-
-	for i := 0; i < clientSize; i++ {
-		InitializeClient(&clientsArray[i], i)
-		go clientsArray[i].Run()
-	}
-
-	wg.Wait()
-
-	for i := 0; i < replicaSize; i++ {
-		replicasArray[i].PrintDetails()
-	}
-
 	fmt.Println("Successfull!!")
 }

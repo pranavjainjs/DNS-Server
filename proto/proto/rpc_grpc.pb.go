@@ -20,10 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ReplicaServer_Read_FullMethodName    = "/ReplicaServer/Read"
-	ReplicaServer_Write_FullMethodName   = "/ReplicaServer/Write"
-	ReplicaServer_Prepare_FullMethodName = "/ReplicaServer/Prepare"
-	ReplicaServer_Commit_FullMethodName  = "/ReplicaServer/Commit"
+	ReplicaServer_Read_FullMethodName             = "/ReplicaServer/Read"
+	ReplicaServer_Write_FullMethodName            = "/ReplicaServer/Write"
+	ReplicaServer_Prepare_FullMethodName          = "/ReplicaServer/Prepare"
+	ReplicaServer_Commit_FullMethodName           = "/ReplicaServer/Commit"
+	ReplicaServer_ReceiveHeartBeat_FullMethodName = "/ReplicaServer/ReceiveHeartBeat"
 )
 
 // ReplicaServerClient is the client API for ReplicaServer service.
@@ -34,6 +35,7 @@ type ReplicaServerClient interface {
 	Write(ctx context.Context, in *WriteRequest, opts ...grpc.CallOption) (*WriteReply, error)
 	Prepare(ctx context.Context, in *PrepareRequest, opts ...grpc.CallOption) (*PrepareOKReply, error)
 	Commit(ctx context.Context, in *CommitRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ReceiveHeartBeat(ctx context.Context, in *HeartBeatRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type replicaServerClient struct {
@@ -84,6 +86,16 @@ func (c *replicaServerClient) Commit(ctx context.Context, in *CommitRequest, opt
 	return out, nil
 }
 
+func (c *replicaServerClient) ReceiveHeartBeat(ctx context.Context, in *HeartBeatRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ReplicaServer_ReceiveHeartBeat_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ReplicaServerServer is the server API for ReplicaServer service.
 // All implementations must embed UnimplementedReplicaServerServer
 // for forward compatibility.
@@ -92,6 +104,7 @@ type ReplicaServerServer interface {
 	Write(context.Context, *WriteRequest) (*WriteReply, error)
 	Prepare(context.Context, *PrepareRequest) (*PrepareOKReply, error)
 	Commit(context.Context, *CommitRequest) (*emptypb.Empty, error)
+	ReceiveHeartBeat(context.Context, *HeartBeatRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedReplicaServerServer()
 }
 
@@ -113,6 +126,9 @@ func (UnimplementedReplicaServerServer) Prepare(context.Context, *PrepareRequest
 }
 func (UnimplementedReplicaServerServer) Commit(context.Context, *CommitRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Commit not implemented")
+}
+func (UnimplementedReplicaServerServer) ReceiveHeartBeat(context.Context, *HeartBeatRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReceiveHeartBeat not implemented")
 }
 func (UnimplementedReplicaServerServer) mustEmbedUnimplementedReplicaServerServer() {}
 func (UnimplementedReplicaServerServer) testEmbeddedByValue()                       {}
@@ -207,6 +223,24 @@ func _ReplicaServer_Commit_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReplicaServer_ReceiveHeartBeat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HeartBeatRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReplicaServerServer).ReceiveHeartBeat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReplicaServer_ReceiveHeartBeat_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReplicaServerServer).ReceiveHeartBeat(ctx, req.(*HeartBeatRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ReplicaServer_ServiceDesc is the grpc.ServiceDesc for ReplicaServer service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -229,6 +263,10 @@ var ReplicaServer_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Commit",
 			Handler:    _ReplicaServer_Commit_Handler,
+		},
+		{
+			MethodName: "ReceiveHeartBeat",
+			Handler:    _ReplicaServer_ReceiveHeartBeat_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
